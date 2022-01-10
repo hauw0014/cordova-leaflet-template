@@ -17,7 +17,7 @@ env:
   pat_token: ${{ secrets.PAT_TOKEN }}
   secret_name: HELLO_WORLD
   secret_body: "Hello World!"
-  secret_repo: "philip-gai/philip-gai"
+  secret_repo: "hauw0014/cordova-leaflet-template"
   secret_environment: dev
 
 jobs:
