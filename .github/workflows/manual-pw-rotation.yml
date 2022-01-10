@@ -18,7 +18,7 @@ env:
   secret_name: HELLO_WORLD
   secret_body: "Hello World!"
   secret_repo: "philip-gai/philip-gai"
-  secret_environment: sandbox
+  secret_environment: dev
 
 jobs:
   gh-set-secret:
