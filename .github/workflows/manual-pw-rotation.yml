@@ -1,38 +1,43 @@
-# This is a basic workflow that is manually triggered
+# Prerequisites:
+# - Create a secret with your PAT token. Permissions needed: repo (all) and read:org
+# - Create the HELLO_WORLD secret in your environment with some dummy initial value
+# 
+# Notes:
+# - You can tell that it works because it masks the secret_body in the echo secret step after it creates the secret 😄
+# - If you don't want to have to call gh auth login, set the env var GH_TOKEN or GITHUB_TOKEN to ${{ secrets.PAT_TOKEN }} and skip that step
+# - If you don't want to have to pass --repo to gh secret set, then put the actions/checkout@v2 step before the gh secret set step
+# 
 
-name: Manual workflow
+name: gh-set-secret
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   workflow_dispatch:
-    # Inputs the workflow accepts.
-    inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
+  
+env:
+  pat_token: ${{ secrets.PAT_TOKEN }}
+  secret_name: HELLO_WORLD
+  secret_body: "Hello World!"
+  secret_repo: "philip-gai/philip-gai"
+  secret_environment: sandbox
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  gh-set-secret:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
-    - name: Deploy dynamic secrets
-      uses: kornicameister/gh-secrets-action@master
-      with:
-        repository: kornicameister/gh-secrets-action
-        token: ${{ secrets.GH_PA_TOKEN }}
-        secrets: |
-          verySecretPassword: secret
-          soSecretAccessKey: accessKey
+      - name: gh auth login
+        shell: bash
+        run: gh auth login --with-token <<< "${{ env.pat_token }}"
+      - name: gh secret set env
+        shell: bash
+        run: gh secret set "${{ env.secret_name }}" --env "${{ env.secret_environment }}" --body "${{ env.secret_body }}" --repo "${{ env.secret_repo }}"
+  gh-test-secret:
+    needs: [gh-set-secret]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ env.secret_environment }}
+    env:
+      secret: ${{ secrets.HELLO_WORLD }}
+    steps:
+      - name: echo secret
+        shell: bash
+        run: echo "$HELLO_WORLD"
