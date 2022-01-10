@@ -1,3 +1,4 @@
+# Source: https://gist.github.com/philip-gai/2b21293b178aa6ea6903e99cc1c32c4f
 # Prerequisites:
 # - Create a secret with your PAT token. Permissions needed: repo (all) and read:org
 # - Create the HELLO_WORLD secret in your environment with some dummy initial value
